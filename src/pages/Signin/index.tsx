@@ -11,7 +11,7 @@ const SignIn: React.FC = () =>(
       <img src={LogoImg} alt="GoBarber"/>
 
       <form>
-        <h1>faça seu Logon</h1>
+        <h1>Faça seu Logon</h1>
 
         <input placeholder="E-mail" />
         <input type="password" placeholder="Senha" />
