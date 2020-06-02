@@ -8,6 +8,7 @@ export const Container = styled.div`
   display: flex;
   align-items: stretch;
 `;
+
 export const Content = styled.div`
   /*  */
   display: flex;
@@ -20,7 +21,7 @@ export const Content = styled.div`
   max-width: 700px;
 
   form {
-    margin: 80px 0;
+    margin: 0 80px;
     width: 340px;
     text-align: center;
 
