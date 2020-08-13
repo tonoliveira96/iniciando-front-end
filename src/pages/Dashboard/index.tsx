@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import DayPicker, { DayModifiers} from 'react-day-picker';
+import 'react-day-picker/lib/style.css';
+
 import { FiPower, FiClock } from 'react-icons/fi';
 import {
   Container,
@@ -17,7 +20,15 @@ import logoImg from '../../assets/logo.svg';
 import { useAuth } from '../../hooks/auth';
 
 const Dashboard: React.FC = () => {
-  const [selectdate, setSelectDate] = useState(new Date())
+  const [selectDate, setSelectDate] = useState(new Date())
+
+  const handleDateChange = useCallback((day: Date, modifiers: DayModifiers)=>{
+    if(modifiers.available){
+      setSelectDate(day)
+    }
+
+  },[])
+
 
   const { signOut, user } = useAuth();
 
@@ -98,7 +109,37 @@ const Dashboard: React.FC = () => {
           </Section>
         </Schedule>
 
-        <Calendar></Calendar>
+        <Calendar>
+          <DayPicker
+            weekdaysShort={['D', 'S', 'T', 'Q', 'Q', 'S', 'S']}
+            fromMonth={new Date()}
+            disabledDays={[
+              {daysOfWeek:[0,6]}
+            ]}
+            selectedDays={selectDate}
+            onDayClick={handleDateChange}
+            modifiers={{
+              available: { daysOfWeek: [1,2,3,4,5]}
+            }}
+            months={[
+              'Janeiro',
+              'Fevereiro',
+              'Março',
+              'Abril',
+              'Maio',
+              'Junho',
+              'Julho',
+              'Agosto',
+              'Setembro',
+              'Outubro',
+              'Novembro',
+              'Dezembro',
+
+
+            ]}
+          />
+
+        </Calendar>
       </Content>
     </Container>
   );
