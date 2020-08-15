@@ -19,7 +19,9 @@ import { useAuth } from '../../hooks/auth';
 interface ProfileFormData {
   name: string;
   email: string;
+  old_password: string;
   password: string;
+  password_confirmation: string;
 }
 const Profile: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
@@ -36,19 +38,57 @@ const Profile: React.FC = () => {
         const schema = Yup.object().shape({
           name: Yup.string().required('Nome obrigatório'),
           email: Yup.string().required('E-mail obrigatório').email(),
-          password: Yup.string().min(6, 'Mínimo 6 dígitos'),
+          old_password: Yup.string(),
+          password: Yup.string().when('old_password', {
+            is: (val) => !!val.length,
+            then: Yup.string().required('Campo obrigatório'),
+            otherwise: Yup.string(),
+          }),
+
+          password_confirmation: Yup.string()
+            .when('old_password', {
+              is: (val) => !!val.length,
+              then: Yup.string().required('Campo obrigatório'),
+              otherwise: Yup.string(),
+            })
+            .oneOf([Yup.ref('password'), undefined], 'Confirmação incorreta'),
         });
 
         await schema.validate(data, {
           abortEarly: false,
         });
 
-        await api.post('/users', data);
-        history.push('/');
+        const {
+          name,
+          email,
+          old_password,
+          password,
+          password_confirmation,
+        } = data;
+
+        const formData = Object.assign(
+          {
+            name,
+            email,
+          },
+          old_password
+            ? {
+                old_password,
+                password,
+                password_confirmation,
+              }
+            : {},
+        );
+
+        const response = await api.put('/profile', formData);
+
+        updateUser(response.data);
+
+        history.push('/dashboard');
         addToast({
           type: 'success',
-          title: 'Cadastro realizado',
-          description: 'Você já pode fazer seu Lgon',
+          title: 'Perfil atualizado',
+          description: 'Suas informações foram atualizadas',
         });
       } catch (err) {
         if (err instanceof Yup.ValidationError) {
@@ -60,33 +100,33 @@ const Profile: React.FC = () => {
 
         addToast({
           type: 'error',
-          title: 'Erro no cadastro',
-          description: 'Ocorreu um erro ao fazer o logon',
+          title: 'Erro na atualização',
+          description: 'Ocorreu um erro ao atualizar perfil',
         });
       }
     },
     [addToast, history],
   );
 
-  const handleAvatarChange = useCallback((e: ChangeEvent<HTMLInputElement>)=>{
-   if(e.target.files){
-    const data = new FormData();
+  const handleAvatarChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files) {
+        const data = new FormData();
 
-    data.append('avatar', e.target.files[0]);
+        data.append('avatar', e.target.files[0]);
 
-    api.patch('/users/avatar', data).then((response)=>{
+        api.patch('/users/avatar', data).then((response) => {
+          updateUser(response.data);
 
-      updateUser(response.data);
-
-      addToast({
-        type: 'success',
-        title: 'Avatar atualizado',
-
-      })
-    })
-
-   }
-  },[addToast, updateUser])
+          addToast({
+            type: 'success',
+            title: 'Avatar atualizado',
+          });
+        });
+      }
+    },
+    [addToast, updateUser],
+  );
 
   return (
     <Container>
@@ -99,20 +139,21 @@ const Profile: React.FC = () => {
       </header>
 
       <Content>
-        <Form ref={formRef}
-        initialData={{
-          name: user.name,
-          email: user.email,
-        }} onSubmit={handleSubmit}>
+        <Form
+          ref={formRef}
+          initialData={{
+            name: user.name,
+            email: user.email,
+          }}
+          onSubmit={handleSubmit}
+        >
           <AvatarInput>
             <img src={user.avatar_url} alt={user.name} />
             <label htmlFor="avatar">
               <FiCamera />
 
-              <input type="file" id="avatar" onChange={handleAvatarChange}/>
+              <input type="file" id="avatar" onChange={handleAvatarChange} />
             </label>
-
-
           </AvatarInput>
 
           <h1>Meu perfil</h1>
