@@ -21,7 +21,7 @@ import {
 import logoImg from '../../assets/logo.svg';
 import { useAuth } from '../../hooks/auth';
 import api from '../../services/api';
-import { formatRelative, parseISO } from 'date-fns/esm';
+import { parseISO } from 'date-fns/esm';
 import { Link } from 'react-router-dom';
 
 interface MontAvailabilityItem {
