@@ -9,5 +9,5 @@
 
 # Front-end do projeto final
 <div align="center">
-  <img src=""/>
+  <img src="https://raw.githubusercontent.com/tonoliveira96/iniciando-front-end/master/assets/GoBarber-web-image.gif"/>
 </div>
